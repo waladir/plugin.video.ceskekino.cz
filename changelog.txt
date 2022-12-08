@@ -1,0 +1,8 @@
+v1.1.0 (08.12.2022)
+- přidané promo kategorie, Doporučené a Oblíbené (s možností přidání v kontextovém menu)
+- stahování detailních dat o filmech s lokálním kešováním
+- přidané vyhledání včetně historie
+- zobrazení seznamu epizod u seriálů
+
+v1.0.0 (05.12.2022)
+- první verze
