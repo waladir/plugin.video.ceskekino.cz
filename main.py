@@ -199,9 +199,9 @@ def list_streams(label, page, id, type):
         order = '&o=-viewed_count'
     if id is not None and id != 'None':
         if type == 'promo':
-            data = call_api(api = '/show/shows/?page=' + str(page) + order + '&categories=' + str(id), data = None)
-        else:
             data = call_api(api = '/show/shows/?page=' + str(page) + order + '&promo_categories=' + str(id), data = None)
+        else:
+            data = call_api(api = '/show/shows/?page=' + str(page) + order + '&categories=' + str(id), data = None)
     else:
         if type == 'favourites':
             data = call_api(api = '/show/shows/?page=' + str(page) + order + '&is_favourite=1', data = None)
