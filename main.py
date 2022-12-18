@@ -94,6 +94,19 @@ def get_token():
         xbmcgui.Dialog().notification('České kino', 'Chyba při přihlášení', xbmcgui.NOTIFICATION_ERROR, 5000)
         sys.exit()
 
+def remove_session():
+    global token
+    addon = xbmcaddon.Addon()
+    addon_userdata_dir = translatePath(addon.getAddonInfo('profile'))
+    filename = os.path.join(addon_userdata_dir, 'session.txt')
+    if os.path.exists(filename):
+        try:
+            os.remove(filename) 
+        except IOError:
+            xbmcgui.Dialog().notification('České kino', 'Chyba při resetu session', xbmcgui.NOTIFICATION_ERROR, 5000)
+    token =  get_token()
+    xbmcgui.Dialog().notification('České kino', 'Byla vytvořená nová session', xbmcgui.NOTIFICATION_INFO, 5000)
+
 def load_cache():
     data = {}
     addon = xbmcaddon.Addon()
@@ -145,7 +158,7 @@ def get_details(id):
             cast.append(actor['name'])
         for director in data['directors']:
             directors.append(director['name'])
-        return {'id' : data['id'], 'video_id' : video_id, 'type' : data['show_type'],'title' : data['title'], 'description' : data['description'], 'image' : image, 'poster' : poster, 'country' : country, 'genres' : data['genres'], 'year' : data['year'], 'cast' : cast, 'directors' : directors}
+        return {'id' : data['id'], 'video_id' : video_id, 'type' : data['show_type'],'title' : data['title'], 'description' : data['description'], 'image' : image, 'poster' : poster, 'country' : country, 'genres' : data['genres'], 'year' : data['year'], 'cast' : cast, 'directors' : directors, 'duration' : data['length']}
     else:
         return None
 
@@ -168,6 +181,8 @@ def set_list_item(list_item, info):
         for person in info['directors']:      
             directors.append(person)
         list_item.setInfo('video', {'director' : directors})  
+    if 'duration' in info:
+        list_item.setInfo('video', {'duration': info['duration']})
     list_item.setArt({'icon': info['image'], 'thumb': info['image']})
     list_item.setArt({'poster': info['poster']})
     return list_item
@@ -197,6 +212,10 @@ def list_streams(label, page, id, type):
         order = '&o=-published_from'
     elif addon.getSetting('order') == 'sledovanosti':
         order = '&o=-viewed_count'
+    elif addon.getSetting('order') == 'nejstarší':
+        order = '&o=year'
+    elif addon.getSetting('order') == 'nejnovější':
+        order = '&o=-year'
     if id is not None and id != 'None':
         if type == 'promo':
             data = call_api(api = '/show/shows/?page=' + str(page) + order + '&promo_categories=' + str(id), data = None)
@@ -210,7 +229,6 @@ def list_streams(label, page, id, type):
     if 'count' not in data or 'num_pages' not in data or 'results' not in data:
         xbmcgui.Dialog().notification('České kino', 'Chyba při získání dat', xbmcgui.NOTIFICATION_ERROR, 5000)
     else:
-        # count = data['count']
         count = len(data['results'])
         pages = data['num_pages']
         next = data['next']
@@ -416,7 +434,6 @@ def add_favourite(id):
     xbmcgui.Dialog().notification('České kino','Přidáno do oblíbených', xbmcgui.NOTIFICATION_INFO, 3000)        
     xbmc.executebuiltin('Container.Refresh')
 
-
 def remove_favourite(id):
     global token
     token =  get_token()
@@ -482,6 +499,8 @@ def router(paramstring):
             add_favourite(id = params['id'])
         elif params['action'] == 'remove_favourite':
             remove_favourite(id = params['id'])
+        elif params['action'] == 'reset_session':
+            remove_session()
 
         else:
             raise ValueError('Neznámý parametr: {0}!'.format(paramstring))
