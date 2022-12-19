@@ -194,7 +194,8 @@ def set_list_item(list_item, info):
         list_item.setInfo('video', {'duration': info['duration']})
     list_item.setArt({'icon': info['image'], 'thumb': info['image']})
     list_item.setArt({'poster': info['poster']})
-    list_item.setRating('rating', round(float(info['rating'])/10, 1))
+    if 'rating' in info:
+        list_item.setRating('rating', round(float(info['rating'])/10, 1))
     return list_item
 
 def play_stream(id):
