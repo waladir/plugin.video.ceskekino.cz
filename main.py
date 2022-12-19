@@ -137,6 +137,10 @@ def save_cache(data):
     except IOError:
         xbmcgui.Dialog().notification('České kino', 'Chyba uložení cache', xbmcgui.NOTIFICATION_ERROR, 5000)
 
+def reset_cache():
+    save_cache(data = {})
+    xbmcgui.Dialog().notification('České kino', 'Stažená detailní data byla smazána', xbmcgui.NOTIFICATION_INFO, 5000)
+
 def get_details(id):
     global token
     token =  get_token()
@@ -158,7 +162,12 @@ def get_details(id):
             cast.append(actor['name'])
         for director in data['directors']:
             directors.append(director['name'])
-        return {'id' : data['id'], 'video_id' : video_id, 'type' : data['show_type'],'title' : data['title'], 'description' : data['description'], 'image' : image, 'poster' : poster, 'country' : country, 'genres' : data['genres'], 'year' : data['year'], 'cast' : cast, 'directors' : directors, 'duration' : data['length']}
+        rating = data['aggregated_rating']
+        if data['show_type'] == 'Serial':
+            duration = -1
+        else:
+            duration = data['length']
+        return {'id' : data['id'], 'video_id' : video_id, 'type' : data['show_type'], 'title' : data['title'], 'description' : data['description'], 'image' : image, 'poster' : poster, 'country' : country, 'genres' : data['genres'], 'year' : data['year'], 'cast' : cast, 'directors' : directors, 'duration' : duration, 'rating' : rating}
     else:
         return None
 
@@ -185,6 +194,7 @@ def set_list_item(list_item, info):
         list_item.setInfo('video', {'duration': info['duration']})
     list_item.setArt({'icon': info['image'], 'thumb': info['image']})
     list_item.setArt({'poster': info['poster']})
+    list_item.setRating('rating', round(float(info['rating'])/10, 1))
     return list_item
 
 def play_stream(id):
@@ -212,6 +222,8 @@ def list_streams(label, page, id, type):
         order = '&o=-published_from'
     elif addon.getSetting('order') == 'sledovanosti':
         order = '&o=-viewed_count'
+    elif addon.getSetting('order') == 'hodnocení':
+        order = '&o=-aggregated_rating'
     elif addon.getSetting('order') == 'nejstarší':
         order = '&o=year'
     elif addon.getSetting('order') == 'nejnovější':
@@ -249,6 +261,8 @@ def list_streams(label, page, id, type):
                 progressbar.update(round(i/count*100), str(i) + ' z ' + str(count))
                 time.sleep(0.5)
                 info = get_details(item['id'])
+                info['image'] = item['images_hover'][0]
+                info['poster'] = item['image_vertical']
                 cached_data.update({str(item['id']) : info})
             list_item = set_list_item(list_item, info = cached_data[str(item['id'])])
             if cached_data[str(item['id'])]['type'] == 'Movie':
@@ -335,6 +349,7 @@ def list_series(id, label):
             if 'image_cover' in episode and len(episode['image_cover']) > 0:
                 list_item.setArt({'poster': episode['image_cover']})
             url = get_url(action='play_stream', id = episode['video'])  
+            list_item.setInfo('video', {'duration': episode['length']})
             list_item.setProperty('IsPlayable', 'true')        
             xbmcplugin.addDirectoryItem(_handle, url, list_item, False)
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = True)    
@@ -501,7 +516,8 @@ def router(paramstring):
             remove_favourite(id = params['id'])
         elif params['action'] == 'reset_session':
             remove_session()
-
+        elif params['action'] == 'reset_cache':
+            reset_cache()
         else:
             raise ValueError('Neznámý parametr: {0}!'.format(paramstring))
     else:

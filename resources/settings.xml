@@ -3,7 +3,8 @@
 	<category label="Nastavení">
                 <setting label="Email" type="text" id="email" default=""/>
                 <setting label="Heslo" type="text" id="password" option="hidden" enable="!eq(-1,false)" default=""/>
-                <setting label="Řadit podle" type="select" id="order" values="abecedy|datumu přidání|sledovanosti|nejstarší|nejnovější" default="abecedy"/>
+                <setting label="Řadit podle" type="select" id="order" values="abecedy|datumu přidání|sledovanosti|hodnocení|nejstarší|nejnovější" default="abecedy"/>
                 <setting label="Nová session" type="action" action="RunPlugin(plugin://plugin.video.ceskekino.cz?action=reset_session)"/>                
+                <setting label="Smazat stažená detailní data" type="action" action="RunPlugin(plugin://plugin.video.ceskekino.cz?action=reset_cache)"/>                
 	</category>
 </settings>
