@@ -192,7 +192,7 @@ def set_list_item(list_item, info):
         list_item.setInfo('video', {'director' : directors})  
     if 'duration' in info:
         list_item.setInfo('video', {'duration': info['duration']})
-    list_item.setArt({'icon': info['image'], 'thumb': info['image']})
+    list_item.setArt({'thumb': info['image']})
     list_item.setArt({'poster': info['poster']})
     if 'rating' in info:
         list_item.setRating('rating', round(float(info['rating'])/10, 1))
@@ -216,6 +216,7 @@ def list_streams(label, page, id, type):
     token =  get_token()
     cached_data = load_cache()
     xbmcplugin.setPluginCategory(_handle, label)
+    xbmcplugin.setContent(_handle, 'movies')
     addon = xbmcaddon.Addon()
     if addon.getSetting('order') == 'abecedy':
         order = ''
@@ -300,11 +301,14 @@ def list_categories(label):
 def list_recommended(label):
     cached_data = load_cache()
     xbmcplugin.setPluginCategory(_handle, label)
+    xbmcplugin.setContent(_handle, 'movies')
     data = call_api(api = '/show/recommended/', data = None)
     for item in data:
         list_item = xbmcgui.ListItem(label = item['title'])
         if str(item['id']) not in cached_data:
             info = get_details(item['id'])
+            info['image'] = item['images_hover'][0]
+            info['poster'] = item['image_vertical']
             cached_data.update({str(item['id']) : info})
         list_item = set_list_item(list_item, info = cached_data[str(item['id'])])
         if cached_data[str(item['id'])]['type'] == 'Movie':
@@ -334,6 +338,7 @@ def list_series(id, label):
         cached_data.update({str(id) : info})
     save_cache(cached_data)
     xbmcplugin.setPluginCategory(_handle, label)
+    xbmcplugin.setContent(_handle, 'movies')
     data = call_api(api = '/show/shows/' + str(id) + '/', data = None)
     for season in data['seasons']:
         dil = 0
@@ -344,11 +349,9 @@ def list_series(id, label):
             list_item.setInfo('video', {'mediatype' : 'movie'})
             list_item.setInfo('video', {'plot': episode['synopsis']})
             if 'images_hover' in episode and len(episode['images_hover']) > 0:
-                list_item.setArt({'icon': episode['images_hover'][0], 'thumb': episode['images_hover'][0]})
+                list_item.setArt({'thumb': episode['images_hover'][0]})
             if 'image_vertical' in episode and len(episode['image_vertical']) > 0:
                 list_item.setArt({'poster': episode['image_vertical']})
-            if 'image_cover' in episode and len(episode['image_cover']) > 0:
-                list_item.setArt({'poster': episode['image_cover']})
             url = get_url(action='play_stream', id = episode['video'])  
             list_item.setInfo('video', {'duration': episode['length']})
             list_item.setProperty('IsPlayable', 'true')        
@@ -356,7 +359,6 @@ def list_series(id, label):
     xbmcplugin.endOfDirectory(_handle, cacheToDisc = True)    
 
 def list_search(label):
-    xbmcplugin.setPluginCategory(_handle, label)
     list_item = xbmcgui.ListItem(label='Nové hledání')
     url = get_url(action='list_search_results', query = '-----', label = label + ' / ' + 'Nové hledání')  
     xbmcplugin.addDirectoryItem(_handle, url, list_item, True)
@@ -368,6 +370,8 @@ def list_search(label):
     xbmcplugin.endOfDirectory(_handle,cacheToDisc = False)
 
 def list_search_results(query, label):
+    xbmcplugin.setPluginCategory(_handle, label)
+    xbmcplugin.setContent(_handle, 'movies')
     if query == '-----':
         input = xbmc.Keyboard('', 'Hledat')
         input.doModal()
@@ -385,6 +389,8 @@ def list_search_results(query, label):
             list_item = xbmcgui.ListItem(label = item['title'])
             if str(item['id']) not in cached_data:
                 info = get_details(item['id'])
+                info['image'] = item['images_hover'][0]
+                info['poster'] = item['image_vertical']
                 cached_data.update({str(item['id']) : info})
             list_item = set_list_item(list_item, info = cached_data[str(item['id'])])
             if cached_data[str(item['id'])]['type'] == 'Movie':
