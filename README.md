@@ -4,6 +4,9 @@
 <p>
 Pro fungování doplňku je potřeba mít registraci a aktivní předplatné na ceskekino.cz<br><br>
 <a href="https://www.xbmc-kodi.cz/prispevek-ceske-kino">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
+v1.2.2 (28.8.2023)<br>
+- zrušení stahované keše detailních dat<br>
+- ošetření chybného formátu datumu v detailních datech<br><br>
 
 v1.2.1 (2.1.2023)<br>
 - ošetření nedostupných videí<br><br>
@@ -18,10 +21,4 @@ v1.1.5 (20.12.2022)<br>
 
 v1.1.4 (19.12.2022)<br>
 - ošetření chybějícího ratingu<br><br>
-
-v1.1.3 (19.12.2022)<br>
-- obrázky se získají vždy online a ne z keše<br>
-- doplnění ratingu, včetně možnosti řazení<br>
-- přidání údaje o délce u epizod seriálu<br>
-- přidáná možnost vymazání stažených detailních dat<br><br>
 </p>

@@ -6,8 +6,6 @@ import xbmcgui
 import xbmcplugin
 import xbmcaddon
 
-import time
-
 from libs.api import call_api
 from libs.session import get_token
 from libs.data import load_cache, save_cache, get_details, set_list_item
@@ -43,7 +41,6 @@ def list_items(data, label, page, category_id):
                     progressbar.create('Stahování detailních dat')
                 progressbar.update(round(i/count*100), str(i) + ' z ' + str(count))
             info = get_details(item['id'])
-            time.sleep(0.5)
             downloaded += 1
         else:
             info = cached_data[str(item['id'])]

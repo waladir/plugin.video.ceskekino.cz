@@ -9,7 +9,6 @@ from xbmcvfs import translatePath
 
 import json
 import codecs
-import gzip
 import time
 from urllib.request import urlopen
 
@@ -17,21 +16,6 @@ from libs.api import call_api
 from libs.session import get_token
 from libs.utils import get_kodi_version
 
-def sync_cache(cached_data):
-    cached_data_url = 'http://141.147.29.158:1080/cached_data.txt.gz'
-    try:
-        cached_data_response = urlopen(url = cached_data_url, timeout = 5)
-        content = cached_data_response.read()
-        data = json.loads(gzip.decompress(content))
-        for id in cached_data:
-            if id not in data:
-                data.update({id : cached_data[id]})
-        data.update({'metadata' : {'valid_to' : int(time.time() + 60*60*24)}})
-        return data
-    except Exception as e:
-        cached_data.update({'metadata' : {'valid_to' : int(time.time() + 60*60*24)}})
-        return cached_data
-    
 def load_cache():
     data = {}
     addon = xbmcaddon.Addon()
@@ -50,7 +34,7 @@ def load_cache():
     if data is not None:
         data = json.loads(data)
     if len(data) == 0 or 'metadata' not in data or data['metadata']['valid_to'] < int(time.time()):
-        data = sync_cache(data)
+        data.update({'metadata' : {'valid_to' : int(time.time() + 60*60*24)}})
     return data
 
 def save_cache(data):
@@ -103,7 +87,8 @@ def set_list_item(list_item, info):
     if get_kodi_version() >= 20:
         infotag = list_item.getVideoInfoTag()
         infotag.setPlot(info['description'])
-        infotag.setYear(int(info['year']))
+        if info['year'].isdigit():
+            infotag.setYear(int(info['year']))
         infotag.setCountries([info['country']])
         for genre in info['genres']:      
             genres.append(genre)
@@ -125,7 +110,8 @@ def set_list_item(list_item, info):
     else:
         list_item.setInfo('video', {'mediatype' : 'movie'})
         list_item.setInfo('video', {'plot': info['description']})
-        list_item.setInfo('video', {'year': info['year']})
+        if info['year'].isdigit():
+            list_item.setInfo('video', {'year': info['year']})
         list_item.setInfo('video', {'country': info['country']})
         for genre in info['genres']:      
             genres.append(genre)
