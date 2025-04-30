@@ -2,7 +2,7 @@
 <p>
 <h3>Kodi doplňek pro VOD službu České kino</h3>
 <p>
-Pro fungování doplňku je potřeba mít registraci a aktivní předplatné na webu ceskekino.cz!<br><br>
+Pro fungování doplňku je potřeba mít registraci a aktivní předplatné na ceskekino.cz<br><br>
 <a href="https://www.xbmc-kodi.cz/prispevek-ceske-kino">Vlákno na fóru XBMC-Kodi.cz</a><br><br>
 v1.2.2 (28.8.2023)<br>
 - zrušení stahované keše detailních dat<br>
